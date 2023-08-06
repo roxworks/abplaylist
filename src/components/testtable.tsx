@@ -15,7 +15,7 @@ function ABTesterComponent({ testData }: { testData: Test & {
                 {testData.titles.map((title, index) => (
                     <div key={index} className="p-3 bg-white rounded-md shadow">
                         <h4 className="text-md font-semibold mb-2">{title}</h4>
-                        <p>Dates Shown: {(testData.TestHistory || []).filter(h => h.titleIndex === index).map(h => h.date).join(',')}</p>
+                        <p>Dates Shown: {(testData.TestHistory || []).filter(h => h.titleIndex === index).map(h => h.date.toDateString()).join(', ')}</p>
                         <p>Followers Gained: {(testData.TestHistory || []).filter(h => h.titleIndex === index).map(h => h.followedGained).reduce((a, b) => a + b, 0)}</p>
                     </div>
                 ))}

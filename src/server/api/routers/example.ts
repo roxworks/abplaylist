@@ -6,7 +6,7 @@ import {
 } from "~/server/api/trpc";
 import SpotifyWebApi from 'spotify-web-api-node';
 import util from 'util';
-import { generateNewTitles } from "~/utils/ai";
+import { generateNewTitles, geyKeywords } from "~/utils/ai";
 import { prisma } from "~/server/db";
 
 // credentials are optional
@@ -63,6 +63,28 @@ export const exampleRouter = createTRPCRouter({
       };
     }),
 
+
+  getKeywords: publicProcedure
+  .input(z.array(z.object({ title: z.string(), followersGained: z.number() })))
+  .query(async ({ input, ctx }) => {
+    // hit openai and ask to summarize keywords as an array
+    // return array of keywords
+
+    //check for followersGained above 0 
+    //if not, return empty array
+    const anyFollowersGained = input.some((item) => item.followersGained > 0);
+    if (!anyFollowersGained) {
+      return {
+        keywords: []
+      };
+    }
+
+    const keywords = await geyKeywords(input);
+    return {
+      keywords: keywords
+    };
+  }),
+
   createTitleTest: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
@@ -113,6 +135,17 @@ export const exampleRouter = createTRPCRouter({
       return {
         test: test
       };
+    }),
+
+  getRecs: publicProcedure
+    .input(z.object({
+      data: z.array(z.object({
+        title: z.string(),
+        followersGained: z.number(),
+      }))
+    }))
+    .mutation(async ({ input, ctx }) => {
+      
     }),
 
   getSecretMessage: protectedProcedure.query(() => {

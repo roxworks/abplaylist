@@ -2,11 +2,20 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import Swal from 'sweetalert2';
 import { api } from '~/utils/api';
+import useBreakpoint from 'use-breakpoint'
+const BREAKPOINTS = { mobile: 0, tablet: 768, desktop: 1280 }
+
 
 const PlaylistTable = ({ playlists }: { playlists: any[] }) => {
     //changeTitle
     const { mutateAsync: createTitleTest } = api.example.createTitleTest.useMutation();
     const router = useRouter();
+    const { breakpoint, maxWidth, minWidth } = useBreakpoint(
+        BREAKPOINTS,
+        'mobile'
+    )
+
+    const showMoreDetails = breakpoint === 'desktop';
 
     return (
         <div className="overflow-x-auto">
@@ -15,10 +24,10 @@ const PlaylistTable = ({ playlists }: { playlists: any[] }) => {
                     <tr>
                         <th className="w-1/6 py-2 px-4">Image</th>
                         <th className="w-1/6 py-2 px-4">Name</th>
-                        <th className="w-1/6 py-2 px-4">Description</th>
+                        {showMoreDetails && <th className="w-1/6 py-2 px-4">Description</th>}
                         <th className="w-1/6 py-2 px-4">Owner</th>
-                        <th className="w-1/6 py-2 px-4">Tracks</th>
-                        <th className="w-1/6 py-2 px-4">Link</th>
+                        {showMoreDetails && <th className="w-1/6 py-2 px-4">Tracks</th>}
+                        {showMoreDetails && <th className="w-1/6 py-2 px-4">Link</th>}
                     </tr>
                 </thead>
                 <tbody className="text-gray-700">
@@ -62,14 +71,14 @@ const PlaylistTable = ({ playlists }: { playlists: any[] }) => {
                                 <img src={playlist.images[0]?.url || ''} alt="Playlist" className="w-16 h-16 rounded-full" />
                             </td>
                             <td className="py-2 px-4">{playlist.name}</td>
-                            <td className="py-2 px-4">{playlist.description}</td>
+                            {showMoreDetails && <td className="py-2 px-4">{playlist.description}</td>}
                             <td className="py-2 px-4">{playlist.owner.display_name}</td>
-                            <td className="py-2 px-4">{playlist.tracks.total}</td>
-                            <td className="py-2 px-4">
+                            {showMoreDetails && <td className="py-2 px-4">{playlist.tracks.total}</td>}
+                            {showMoreDetails && <td className="py-2 px-4">
                                 <a href={playlist.external_urls.spotify} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                                     View on Spotify
                                 </a>
-                            </td>
+                            </td>}
                         </tr>
                     ))}
                 </tbody>
